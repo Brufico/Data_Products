@@ -23,14 +23,15 @@ shinyServer(function(input, output) {
         
         # Data generation
         set.seed(2017)
-        df <- reactive({
-                data.frame(x = switch(distrib(),
-                        norm = rnorm(n = number_of_points(), mean =  m(), sd = sd()),
-                        exp = rexp(n = number_of_points(), rate = 1 / m()),
-                        unif = runif(n = number_of_points(), 
-                                     min = min(m(), sd()), 
-                                     max = max(m(), sd()))
-                        ))})
+        df <- eventReactive(list(input$go, distrib(), m(), sd()),
+                            {data.frame(x = switch(distrib(),
+                                                   norm = rnorm(n = number_of_points(),
+                                                                mean =  m(), sd = sd()),
+                                                   exp = rexp(n = number_of_points(), rate = 1 / m()),
+                                                   unif = runif(n = number_of_points(), 
+                                                                min = min(m(), sd()), 
+                                                                max = max(m(), sd()))
+                            ))})
         
 
         # Output generation
@@ -40,10 +41,13 @@ shinyServer(function(input, output) {
         output$namedist <- renderText(distrib())
         
         output$text0 <- renderText("Recommended number of bins:")  
-        output$text1 <- renderText(as.character(paste0("Sturges = ", nclass.Sturges(df()$x)))) 
-        output$text2 <- renderText(as.character(paste0("Scott = ", nclass.scott(df()$x)))) 
-        output$text3 <- renderText(as.character(paste0("Friedman-Diaconis = ", nclass.FD(df()$x))))
-        
+        # output$text1 <- renderText(as.character(paste0("Sturges = ", nclass.Sturges(df()$x)))) 
+        # output$text2 <- renderText(as.character(paste0("Scott = ", nclass.scott(df()$x)))) 
+        # output$text3 <- renderText(as.character(paste0("Friedman-Diaconis = ", nclass.FD(df()$x))))
+        output$text1 <- renderText(as.character(paste0("Sturges = ", nclass.Sturges(df()$x),
+                                                       ", Scott = ", nclass.scott(df()$x),
+                                                       ", Friedman-Diaconis = ", nclass.FD(df()$x)
+                                                       ))) 
         
         output$plot1 <- renderPlot({
            
