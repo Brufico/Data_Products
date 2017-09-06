@@ -13,13 +13,19 @@ knitr::opts_chunk$set(echo = FALSE)
 
 
 ```{r, comment=""}
-head(mtcars)
+head(mtcars[1:5])
 ```
 
 
 
 ***
 A Headerless slide
+
+
+```{r}
+
+knitr::kable(head(mtcars[1:5]))
+```
 
 
 ## R Markdown
