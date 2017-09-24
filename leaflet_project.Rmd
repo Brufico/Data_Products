@@ -1,0 +1,149 @@
+---
+title: "Interactive Map with Leaflet: Police Offices in Paris"
+subtitle: "Assignment for week 2 of 'Developing data products'"
+author: "Bruno Fischer Colonimos"
+date: "23 septembre 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# Loading the package(s)
+library(leaflet, quietly = TRUE)
+```
+
+
+The Data
+=========
+
+First We get and read the rata (source: https://www.data.gouv.fr/fr/datasets/carte-des-points-d-accueil-police-a-paris-idf/)
+Columns 1 to 4 have been added to the data in order to better code some of the other columns:
+
+
+```{r data, echo = FALSE}
+datadir <- "data"
+fname <- "PoliceParis2.csv"
+fpath <- file.path(datadir, fname)
+# file.exists(fpath)
+
+df <- read.table(fpath, 
+                 sep = ";", 
+                 quote = "",
+                 comment.char = "",
+                 header = TRUE, 
+                 stringsAsFactors = FALSE)
+# names(df)
+# eliminer quelques colonnes inutiles (la latitude et la
+# longitude ayant été extraites de ces colonnes)
+df <- df[ , -(12:15)]
+```
+
+Columns of the dataframe:
+
+```{r showdata, echo = FALSE}
+# montrer les variables de la base
+cnames <- colnames(df)
+names(cnames) <- as.character(1:length(cnames))
+
+
+
+knitr::kable(t(cnames))
+
+```
+
+
+The map
+========
+
+We show here the code that was used to produce the map.
+
+```{r, fig.cap="Map of the Police offices in Paris"}
+
+# coding the service as the marker color: 
+#       * Commissariat central = red
+#       * SAIP or BDEP = orange
+#       * other = white
+getMarkerColor <- function(dframe) {
+        sapply(1:nrow(dframe),
+               function(i) {
+                       if(dframe$Commissariat.central[i] == 1) {
+                               "red"
+                       } else if (dframe$SAIP[i] == 1 | dframe$BDEP[i] == 1) {
+                               "orange"
+                       } else {
+                               "white"
+                       }
+               }
+        )
+}
+
+# Completing this code by displaying the icon in blue if the
+# service is SAIP
+getIconColor <- function(dframe) {
+        ifelse(dframe$SAIP == 1, "blue", "black")
+}
+
+# icon should be a wheelchair if the service is accessible
+# to handicapped people (else a "user")
+getIcon <- function(dframe) {
+        ifelse(dframe$acces == 1, "wheelchair", "user")
+}
+
+# Marker shape: Square if service is open 7/7 h24
+getMarkerShape <- function(dframe) {
+        ifelse(dframe$h24 == 1, TRUE, FALSE)
+}
+
+# Popup : should be the service description, address, phone, opening hours
+getPopup <- function(dframe) {
+        sapply(1:nrow(dframe),
+               function(i) {
+                       dfrow <- dframe[i, ]
+                       paste(c(dfrow$service,
+                               dfrow$adresse,
+                               paste0("Paris ", dfrow$ardt),
+                               dfrow$telephone,
+                               dfrow$horaires),
+                             collapse = "<br>") 
+               }
+        )
+}
+
+# pp <- getPopup(df)
+# pp[1]
+
+
+icons <- awesomeIcons(
+        icon = getIcon(df),
+        iconColor = getIconColor(df),
+        library = 'fa',
+        markerColor = getMarkerColor(df),
+        squareMarker = getMarkerShape(df)
+)
+
+leaflet(df, height = "600px", width = "800px") %>% 
+        addTiles() %>%
+        addAwesomeMarkers(~long, ~lat, icon=icons, 
+                          popup = getPopup(df)) %>%
+        addLegend(labels = c("Commissariat Central",
+                             "SAIP ou BDEP",
+                             "Other"), 
+                  colors = c("red", "orange", "white"))
+```
+
+### Reading the map:
+* the colours indicate the type of office:
+    * Commissariat central: red marker
+    * SAIP: orange marker, blue icon,
+    * BDEP: orange marker
+    * other: white marker
+* Opening hours: a square marker has been used for the offices which are permanently open. It turns out that the central police stations are the only permanently open services.
+* Accessibility : if a service is accessible to to people with disabilities, the icon of that service is a wheelchair <i class="fa fa-wheelchair" aria-hidden="true"></i>.
+
+
+-----------------
+
