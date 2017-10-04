@@ -1,0 +1,14 @@
+(Example borrowed from Lagarde, Jean, "L'analyse des données")
+Marketing Mix
+A company has just launched a promotional campaign. A first report lists, for each of the 8 sales sectors, the sales volume, the advertising budget and the number of visits to the distributors made by the sales representatives. The data is shown below (left tab "data")
+ 
+In order to analyze the effectiveness of the campaign, the manager has tried to explain the sales volume using two regresion models:
+* sales ~ advertising
+* sales ~ visits
+You can view the two scatterplots by clicking on the "simple regresions" tabs on the left). Do you see something very odd with at least one of these scatterplots / regression models ?
+
+A double regresion model has also been made. You can manipulate the corresponding 3D scatterplot (and regression plane) by clicking the tab "multiple regression" (on top).
+By changing the view angles, can you explain the odd result you got before?
+
+
+ 

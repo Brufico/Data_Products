@@ -1,0 +1,23 @@
+
+								tabPanel("Situation",
+                                          p("Example borrowed from Lagarde, Jean, 'L'analyse des données'"),
+                                          h2("Marketing Mix"),
+                                          p("A company has just launched a promotional campaign.
+                                            A first report lists, for each of the 8 sales sectors, the sales volume,
+                                            the advertising budget and the number of visits to the distributors made by
+                                            the sales representatives. The data is shown below (left tab 'data')"),
+                                          p("In order to analyze the effectiveness of the campaign, the manager
+                                            has tried to explain the sales volume using two regresion models:"),
+                                          tags$ul(
+                                                  tags$li("sales ~ advertising"),
+                                                  tags$li("sales ~ visits")
+                                          ),
+                                          p("You can view the two corresponding scatterplots by clicking on the
+                                            'simple regresions' tabs on the left).
+                                            Is'nt there something very odd with one of these scatterplots / regression models ?"),
+                                          p("A double regresion model has also been made. You can view and manipulate the
+                                            corresponding 3D-scatterplot (and regression plane) by clicking the tab
+                                            'multiple regression' (on top)"),
+                                             p("By changing the view angles, can you match and explain the odd
+                                            simple regressoionresult we saw before?")
+                                 ),

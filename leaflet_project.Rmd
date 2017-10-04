@@ -1,17 +1,23 @@
 ---
-title: "Interactive Map with Leaflet: Police Offices in Paris"
+title: "Interactive Map with Leaflet: Police Departments in Paris, France"
 subtitle: "Assignment for week 2 of 'Developing data products'"
 author: "Bruno Fischer Colonimos"
 date: "23 septembre 2017"
-output: html_document
+output: 
+    html_document:
+        toc: true
 ---
+
+
+--------------
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r}
+```{r loadpackage, echo = FALSE}
 # Loading the package(s)
 library(leaflet, quietly = TRUE)
 ```
@@ -20,15 +26,18 @@ library(leaflet, quietly = TRUE)
 The Data
 =========
 
-First We get and read the rata (source: https://www.data.gouv.fr/fr/datasets/carte-des-points-d-accueil-police-a-paris-idf/)
-Columns 1 to 4 have been added to the data in order to better code some of the other columns:
+First we get and read the data (source: https://www.data.gouv.fr/fr/datasets/carte-des-points-d-accueil-police-a-paris-idf/)
+
+A description of the types of police departments (SAIP, BDEP) can be found at : https://www.prefecturedepolice.interieur.gouv.fr/Vous-aider/Accueil-du-public/Accueil-du-public/Radioscopie-d-un-commissariat
+
+Columns 1 to 4 have been added to the data in order to better code some of the other columns. Original column 12 has been expanded into the `latitude` and `longitude` columns, and deleted.
 
 
 ```{r data, echo = FALSE}
+# Reading the data
 datadir <- "data"
 fname <- "PoliceParis2.csv"
 fpath <- file.path(datadir, fname)
-# file.exists(fpath)
 
 df <- read.table(fpath, 
                  sep = ";", 
@@ -37,8 +46,8 @@ df <- read.table(fpath,
                  header = TRUE, 
                  stringsAsFactors = FALSE)
 # names(df)
-# eliminer quelques colonnes inutiles (la latitude et la
-# longitude ayant été extraites de ces colonnes)
+# get rid of superfluous columns (latitude and
+# longitude have already been extracted from these columns)
 df <- df[ , -(12:15)]
 ```
 
@@ -47,21 +56,32 @@ Columns of the dataframe:
 ```{r showdata, echo = FALSE}
 # montrer les variables de la base
 cnames <- colnames(df)
+# add names
 names(cnames) <- as.character(1:length(cnames))
-
-
-
+# print nicely
 knitr::kable(t(cnames))
-
 ```
+
+
+Description of the variables:
+
+* `r cnames[1:3]` - 1 if the correspondng type of department exists there, else 0
+* `r cnames[4]` - 1 if the building is accessible to people with disabiities 
+* `r cnames[5]` - 1 if open 24/7, else 0
+* `r cnames[6]` - arrondissement (code number of the administrative area)
+* `r cnames[7]` - list of the departments at this address
+* `r cnames[8]` - Street address
+* `r cnames[9]` - Phone number
+* `r cnames[10]` - Opening hours
+* `r cnames[11]` - Original accessibility description
+* `r cnames[12:13]` - Latitude, Longitude
 
 
 The map
 ========
 
-We show here the code that was used to produce the map.
 
-```{r, fig.cap="Map of the Police offices in Paris"}
+```{r map, echo = FALSE, fig.cap="Map of the Police departments in Paris"}
 
 # coding the service as the marker color: 
 #       * Commissariat central = red
@@ -88,7 +108,7 @@ getIconColor <- function(dframe) {
 }
 
 # icon should be a wheelchair if the service is accessible
-# to handicapped people (else a "user")
+# to handicapped people (else a "user") (in the `fa` icon library)
 getIcon <- function(dframe) {
         ifelse(dframe$acces == 1, "wheelchair", "user")
 }
@@ -107,16 +127,13 @@ getPopup <- function(dframe) {
                                dfrow$adresse,
                                paste0("Paris ", dfrow$ardt),
                                dfrow$telephone,
-                               dfrow$horaires),
+                               paste0("Ouverture: ", dfrow$horaires) ),
                              collapse = "<br>") 
                }
         )
 }
 
-# pp <- getPopup(df)
-# pp[1]
-
-
+# assemble the 'icons' argument
 icons <- awesomeIcons(
         icon = getIcon(df),
         iconColor = getIconColor(df),
@@ -125,11 +142,15 @@ icons <- awesomeIcons(
         squareMarker = getMarkerShape(df)
 )
 
-leaflet(df, height = "600px", width = "800px") %>% 
+leaflet(df #, height = "15cm", width = "20cm"
+        ) %>% 
         addTiles() %>%
-        addAwesomeMarkers(~long, ~lat, icon=icons, 
-                          popup = getPopup(df)) %>%
-        addLegend(labels = c("Commissariat Central",
+        addAwesomeMarkers(~long, ~lat, 
+                          icon=icons, 
+                          popup = getPopup(df),
+                          label = ~service) %>%
+        addLegend(title = "Police departments",
+                  labels = c("Commissariat Central",
                              "SAIP ou BDEP",
                              "Other"), 
                   colors = c("red", "orange", "white"))
@@ -142,8 +163,26 @@ leaflet(df, height = "600px", width = "800px") %>%
     * BDEP: orange marker
     * other: white marker
 * Opening hours: a square marker has been used for the offices which are permanently open. It turns out that the central police stations are the only permanently open services.
-* Accessibility : if a service is accessible to to people with disabilities, the icon of that service is a wheelchair <i class="fa fa-wheelchair" aria-hidden="true"></i>.
+* Accessibility : if a service has been made accessible to to people with disabilities, the icon of that service is a wheelchair <i class="fa fa-wheelchair" aria-hidden="true"></i>.
 
+* Interactive features:
+    * zoom on the map using your mouse
+    * hover above a marker to identify the department name
+    * click on a marker to get a full description
 
 -----------------
+
+Appendix: Code
+==============
+
+We show here the code that was used to produce the map.
+
+```{r, ref.label=c("loadpackage", "data"), eval=FALSE}
+
+```
+
+
+```{r, ref.label="map", eval=FALSE}
+
+```
 
