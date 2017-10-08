@@ -1,9 +1,12 @@
 ---
 title: "The Largest Cities - Zipf 's law"
-subtitle: "DDP second assignment (week 3)<br>**NOT suitable for Firefox**<br>Please use the keyboard's directional arrows to navigate the pages of the presentation. "
 author: "Bruno Fischer Colonimos"
 date: "29 septembre 2017"
-output: ioslides_presentation
+output:
+  ioslides_presentation: default
+  slidy_presentation: default
+subtitle: 'DDP second assignment (week 3)<br>**NOT suitable for Firefox**<br>Please
+  use the keyboard''s directional arrows to navigate the pages of the presentation. '
 ---
 
 ```{r setup, include=FALSE}
@@ -29,7 +32,7 @@ A simplified way to state  the form of this relationship is $$population = \frac
 This is a linear relationship between $\log(population)$ and $\log(rank)$
 We will thus draw *log/log* scatterplot to investigate further this relationship. 
 
-**Please use Chrome, IE or Edge** to visualize the interactive plot (next page). With Firefox, I could'nt see anything, and I am not the only one with this problem.
+**Please use Chrome or Edge** to visualize the interactive plot (next page). With Firefox, I could'nt see anything, and I am not the only one with this problem.
 
 
 ## Interactive graph (Chrome/Edge)
@@ -66,7 +69,7 @@ s = -cf[2]
 
 ```
 
-```{r graph}
+```{r graph, fig.align="center"}
 # the ggplot2 graph
 gpop <- ggplot(firstcap,aes(rank, pop, color = name)) +
         geom_point() +
