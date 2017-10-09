@@ -1,28 +1,34 @@
-devtools::install_github('hadley/ggplot2')
+# devtools::install_github('hadley/ggplot2')
 
 library(maps)
-
+library(ggplot2)
+library(plotly)
 data("world.cities")
 
-head(world.cities)
+# head(world.cities)
 
-cp <- with(world.cities,
-           world.cities[capital==1,] )
+# cp <- with(world.cities,
+#            world.cities[capital==1,] )
+
+cp <- world.cities
 
 cp <- cp[order(cp$pop, decreasing = TRUE),]
 cp$rank <- 1:nrow(cp)
 cp$lpop <- log10(cp$pop)
+cp$lrank <- log10(cp$rank)
 
-
-begin <- 1
-end <- 81
+begin <- 10
+end <- 500
 
 firstcap <- cp[begin:end, ]
+
+
 fit <- lm(lpop ~ rank, data = firstcap)
 cf <- coef(fit)
 
 mcoef <- 10 ^ cf[2]
 
+# ------------------------------------------------------------------
 gpop <- ggplot(firstcap,aes(rank, lpop, color = name)) +
         geom_point() +
         geom_smooth(method = "lm", mapping = aes(group=1), se = FALSE) +
@@ -31,6 +37,74 @@ gpop <- ggplot(firstcap,aes(rank, lpop, color = name)) +
              y = "log10(population)")
 ggpoply <- ggplotly(gpop)
 ggpoply
+
+# ------------------------------------------------------------------------
+#
+
+begin <- 1
+end <- 10
+
+firstcap <- cp[begin:end, ]
+
+# model
+
+fit <- lm(lpop ~ lrank, data = firstcap)
+cf <- coef(fit)
+
+mcoef <- 10 ^ cf[2]
+
+
+
+gpop <- ggplot(firstcap,aes(lrank, lpop, color = name)) +
+        geom_point() +
+        geom_smooth(method = "lm", mapping = aes(group=1), se = FALSE) +
+        theme(legend.position = "none") +
+        labs(title = "Population of the world's largest cities",
+             y = "log10(population)")
+ggpoply <- ggplotly(gpop)
+ggpoply
+
+
+# ------------------------------------------------------------------------
+#
+
+begin <- 10
+end <- 500
+
+firstcap <- cp[begin:end, ]
+
+# model
+
+fit <- lm(lpop ~ lrank, data = firstcap)
+cf <- coef(fit)
+
+mcoef <- 10 ^ cf[2]
+
+
+
+gpop <- ggplot(firstcap,aes(lrank, lpop, color = name)) +
+        geom_point() +
+        geom_smooth(method = "lm", mapping = aes(group=1), se = FALSE) +
+        theme(legend.position = "none") +
+        labs(title = "Population of the world's largest cities",
+             y = "log10(population)")
+ggpoply <- ggplotly(gpop)
+ggpoply
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # verification of zipf's law

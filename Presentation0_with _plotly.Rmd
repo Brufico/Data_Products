@@ -1,0 +1,131 @@
+---
+<<<<<<< HEAD
+title: "Plotly 3D"
+subtitle: "DDP second assignment (week 3) - Plotly and presentations<br> - use the directionnal arrows to navigate the pages of the presentation"
+=======
+title: "The Largest Cities - Zipf 's law"
+subtitle: "DDP second assignment (week 3)<br>**NOT suitable for Firefox**<br>Please use the keyboard's directional arrows to navigate the pages of the presentation. "
+>>>>>>> 4ab0f58083b57f951aaa3f5057466ef9ff38a837
+author: "Bruno Fischer Colonimos"
+date: "29 septembre 2017"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Zipf's law
+
+In this document, we try to explore the relationship between the population and the rank of the largest cities of the world, using the dataframe `world.cities` of the package `maps`.
+
+This relation between rank and size can been described using **Zipf's law** (see [wikipedia](https://en.wikipedia.org/wiki/Zipf%27s_law)).
+
+<<<<<<< HEAD
+
+## Slide with Plotly
+
+```{r plotly_lib, include=FALSE}
+library(plotly,  quietly = TRUE)
+=======
+Originally, Zipf's law states a relationship between the rank and the frequency of words in a language. It can be applied to describe the relation between the size (population) and the rank of cities, among other objects.
+
+
+## Form of the relationship
+
+A simplified way to state  the form of this relationship is $$population = \frac{K}{rank^s}$$
+
+ $$i.e.\  \log(population) = \log(K) - s \cdot \log(rank)$$
+
+
+This is a linear relationship between $\log(population)$ and $\log(rank)$
+We will thus draw *log/log* scatterplot to investigate further this relationship. 
+
+**Please use Chrome, IE or Edge** to visualize the interactive plot (next page). With Firefox, I could'nt see anything, and I am not the only one with this problem.
+
+
+## Interactive graph (Chrome/Edge)
+
+Scatterplot of the world's 10 largest cities (log-log axis): 
+
+```{r libs, include = FALSE}
+library(maps)
+library(ggplot2)
+library(plotly)
+
+>>>>>>> 4ab0f58083b57f951aaa3f5057466ef9ff38a837
+```
+```{r, message = FALSE, warning = FALSE}
+# data
+data("world.cities")
+cp <- world.cities
+cp <- cp[order(cp$pop, decreasing = TRUE),]
+cp$rank <- 1:nrow(cp)
+# compute logs
+cp$lpop <- log10(cp$pop)
+cp$lrank <- log10(cp$rank)
+
+begin <- 1
+end <- 10
+firstcap <- cp[begin:end, ]
+
+
+fit <- lm(lpop ~ lrank, data = firstcap)
+cf <- coef(fit)
+K = 10 ^ cf[1]
+s = -cf[2]
+
+
+<<<<<<< HEAD
+```{r plot}
+
+plot_ly(x = mtcars$wt, y = mtcars$cyl, 
+        z = mtcars$mpg, type = "scatter3d", mode = "markers", 
+        color = mtcars$wt )
+=======
+
+>>>>>>> 4ab0f58083b57f951aaa3f5057466ef9ff38a837
+```
+
+```{r graph}
+# the ggplot2 graph
+gpop <- ggplot(firstcap,aes(rank, pop, color = name)) +
+        geom_point() +
+        geom_smooth(method = "lm", mapping = aes(group=1), se = FALSE) +
+        scale_x_log10(breaks = 1:10) +
+        scale_y_log10(breaks = seq(1,1.6, by=0.1)* (10 ^ 7) ) +
+        labs(#title = "World's 10 largest cities: Population vs rank ",
+             y = "population") +
+        theme_bw() + theme(legend.position = "none") + 
+        theme(panel.grid.major = element_line(color = "grey", size = 0.1))
+
+# converting to plotly
+ggpoply <- ggplotly(gpop)
+ggpoply
+```
+
+## Fitting an equation
+
+The corresponding fitting equation is: 
+
+```{r}
+eqn <- paste0("$$", "Population = \\frac{", 
+              format(K, digits = 0, big.mark = "\\\\ ", scientific = 12), 
+              "}{rank^{",
+              round(s,4),"}}$$")
+```
+`r eqn`
+
+It seems valid only for the cities with more than 10 millions inhabitants. The equation form holds also for smaller cities, but with  different parameters $K$ and $s$
+
+## Interactive graph: Method
+
+The scatterplot was made using `ggplot2`, and converted to a `Plotly` graph with the function `ggplotly()`:
+
+```{r, ref.label="graph", eval=FALSE, echo=TRUE}
+
+```
+
+
+
+
