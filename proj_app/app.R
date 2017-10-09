@@ -5,47 +5,34 @@
 
 # Preliminary code =========================================
 
-
 library(shiny)
 library(rockchalk)
 
-# =================================================
-# Aux function
+# ==========================================================
+# Auxiliary functions
 #
-# get the equation for a simple linear regression model
+# get the equation (text) for a simple linear regression model
 
-regeq1 <- function(mod, digits = 3) {
+regeq <- function(mod, digits = 3) {
         co <- coef(mod)
         response <- attr(mod$terms, "variables")[[2]]
-        predictor <- attr(mod$terms, "variables")[[3]]
+        predictors <- names(co)
+        # function for constructing the body
+        partialeq <- function(x, predname) {
+                op <- ifelse(sign(x) >=0, "+", "-")
+                paste(op, format(abs(x), digits = digits), predname)
+        }
+        bodyeq <- paste(mapply(partialeq, co[-1], predictors[-1]), collapse = " ")
+
         equa <- paste(response,
                       "=",
                       format(co[1], digits = digits),
-                      ifelse(co[2] < 0,  "-", "+"),
-                      format(abs(co[2]), digits = digits),
-                      predictor
+                      bodyeq
         )
         equa
 }
 
-# to rewrite: 2-covariables model
-regeq2 <- function(mod, digits = 3) {
-        co <- coef(mod)
-        response <- attr(mod$terms, "variables")[[2]]
-        predictor1 <- attr(mod$terms, "variables")[[3]]
-        predictor2 <- attr(mod$terms, "variables")[[4]]
-        equa <- paste(response,
-                      "=",
-                      format(co[1], digits = digits),
-                      ifelse(co[2] < 0,  "-", "+"),
-                      format(abs(co[2]), digits = digits),
-                      predictor1,
-                      ifelse(co[3] < 0,  "-", "+"),
-                      format(abs(co[3]), digits = digits),
-                      predictor2
-        )
-        equa
-}
+
 
 # panel function for the pairplot
 panel.cor <- function(x, y, digits = 2, prefix = "R=", cex.cor, ...) {
@@ -57,7 +44,6 @@ panel.cor <- function(x, y, digits = 2, prefix = "R=", cex.cor, ...) {
         if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
         text(0.5, 0.5, txt, cex = cex.cor * r)
 }
-
 
 
 # ==========================================================
@@ -72,16 +58,17 @@ vis <- vis[-1]
 # 1-var
 mod1 <- lm(Sales ~ Adv, data=vis)
 sum1 <- summary(mod1)
-eq1 <- regeq1(mod1)
+eq1 <- regeq(mod1)
+# eq1 <- lmatheq(mod1)
 
 mod1B <- lm(Sales ~ Visits, data=vis)
 sum1B <- summary(mod1B)
-eq1B <- regeq1(mod1B)
+eq1B <- regeq(mod1B)
 
 # 2-var
 mod2 <- lm(Sales ~ Adv + Visits, data=vis)
 sum2 <- summary(mod2)
-eq2 <- regeq2(mod2)
+eq2 <- regeq(mod2)
 
 
 
@@ -102,27 +89,30 @@ ui <- fluidPage(
                          navlistPanel(
                                  tabPanel("Situation",
                                           p("Shiny app by Bruno Fischer Colonimos, Story and Data from: "),
-                                          HTML("<center><strong>de Lagarde, Jean</strong>, 'L'analyse des données', Dunod ed (1998)</center>"),
+                                          HTML("<center><strong>de Lagarde, Jean</strong>, 'L'analyse des données',
+                                               Dunod ed (1998)</center>"),
                                           h2("Marketing Mix"),
                                           p("A company has just launched a promotional campaign.
                                             A first report lists, for each of the 8 sales sectors, the sales volume,
-                                            the advertising budget and the number of visits to the distributors made by
-                                            the sales representatives. The data is shown below (left tab 'data')"),
+                                            the advertising budget and the number of visits to the distributors made
+                                            by the sales representatives. The data is shown under the 'Data' tab
+                                            (on the left)"),
                                           p("In order to analyze the effectiveness of the campaign, the manager
-                                            has tried to explain the sales volume using two regresion models:"),
+                                            has tried to explain the sales volume using two regression models:"),
                                           tags$ul(
                                                   tags$li("sales ~ advertising"),
                                                   tags$li("sales ~ visits")
                                           ),
                                           p("You can view the two corresponding scatterplots by clicking on the
-                                            'simple regresions' tabs on the left).
-                                            Is'nt there something very odd with one of these scatterplots / regression models ?"),
-                                          p("A double regresion model has also been made. You can view and manipulate the
-                                            corresponding 3D-scatterplot (and regression plane) by clicking the tab
-                                            'multiple regression' (on top)",
+                                            'simple regressions' tabs on the left).
+                                            Is'nt there something very odd with one of these
+                                            scatterplots/regression models ?"),
+                                          p("A double regresion model has also been made. You can view and
+                                            manipulate the corresponding 3D-scatterplot (and regression plane)
+                                                by clicking the tab 'multiple regression' (on top)",
                                             br(),
                                             "By changing the view angles, can you match and explain the odd
-                                            simple regressoion result we saw before?" )
+                                            simple regression result we saw before?" )
                                  ),
                                  tabPanel("Data",
                                           h3("The data"),
@@ -165,7 +155,7 @@ ui <- fluidPage(
                                                      min = -90,
                                                      max = 90,
                                                      value = 8,
-                                                     animate = animationOptions(interval = 200)),
+                                                     animate = FALSE),
                                          checkboxInput("showplane",
                                                        "Show Regression plane",TRUE)
                                  ),
@@ -173,6 +163,7 @@ ui <- fluidPage(
                                  # Show a 3D scatterplot
                                  mainPanel(
                                          h1("3D scatterplot +  regression plane"),
+                                         p(eq2),
                                          plotOutput("Plot3d")
                                  )
                          )
@@ -183,7 +174,7 @@ ui <- fluidPage(
 
 # server ===================================================
 
-# Define server logic required to draw a histogram
+# Define server logic required
 server <- function(input, output) {
 
    output$distPlot <- renderPlot({
@@ -234,7 +225,7 @@ server <- function(input, output) {
 
    })
 
-   # scatter1
+   # scatter1 #---------------------------------------------------------
    output$scatter1 <- renderPlot({
            with(vis,
                 {
@@ -244,7 +235,7 @@ server <- function(input, output) {
            )
    })
 
-   # scatter1B
+   # scatter1B #---------------------------------------------------------
    output$scatter1B <- renderPlot({
            with(vis,
                 {
@@ -254,9 +245,9 @@ server <- function(input, output) {
            )
    })
 
-   # scatterplot matrix
+   # scatterplot matrix #-----------------------------------------------
    output$pairplot <- renderPlot({
-           pairs(~Sales + Adv + Visits,
+           pairs(~ Sales + Adv + Visits,
                  data = vis, pch = 16, col = "blue",
                  upper.panel = panel.smooth,
                  lower.panel = panel.cor )
