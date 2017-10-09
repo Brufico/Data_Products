@@ -71,6 +71,13 @@ sum2 <- summary(mod2)
 eq2 <- regeq(mod2)
 
 
+# ==========================================================
+# General parameters
+
+point_color = "blue"
+regcolor = "red"
+
+
 
 # ui =======================================================
 
@@ -190,9 +197,9 @@ server <- function(input, output) {
            # display scatterplot3D using angles from sliders
            theta <- input$azimut
            phi <- input$hauteur
-           planecol <- adjustcolor( "green",
-                                    alpha.f = ifelse(input$showplane, 1, 0))
-
+           # planecol <- adjustcolor(regcolor,
+                                    # alpha.f = ifelse(input$showplane, 1, 0))
+           planecol = regcolor
            # draw the graph
            plotPlane(mod2, # reg model
                      # x1 and x2 names in model
