@@ -92,7 +92,7 @@ eq2 <- regeq2(mod2)
 ui <- fluidPage(
 
         # Application title
-        titlePanel("Trying layout"),
+        titlePanel("VIsualizing simple/multiple regression using 3D vs 'flat' representations"),
 
         # begin a tabset panel (top)
         tabsetPanel(
@@ -101,7 +101,8 @@ ui <- fluidPage(
                          #"contents is an  tablist panel inside the taPanel"
                          navlistPanel(
                                  tabPanel("Situation",
-                                          p("Example borrowed from Lagarde, Jean, 'L'analyse des données'"),
+                                          p("Shiny app by Bruno Fischer Colonimos, Story and Data from: "),
+                                          HTML("<center><strong>de Lagarde, Jean</strong>, 'L'analyse des données', Dunod ed (1998)</center>"),
                                           h2("Marketing Mix"),
                                           p("A company has just launched a promotional campaign.
                                             A first report lists, for each of the 8 sales sectors, the sales volume,
@@ -127,14 +128,14 @@ ui <- fluidPage(
                                           h3("The data"),
                                           img(src="data_img.png")
                                  ),
-                                 tabPanel("Simple regression: Advertising",
+                                 tabPanel("Simple regression: Sales ~ Advertising",
                                           h3("Simple regression: Sales ~ Advertising"),
                                           h4("Regression equation"),
                                           p(eq1),
                                           h4("Scatterplot"),
                                           plotOutput("scatter1")
                                  ),
-                                 tabPanel("Simple regression: Visits",
+                                 tabPanel("Simple regression: Sales ~ Visits",
                                           h3("Simple regression: Sales ~ Visits"),
                                           h4("Regression equation"),
                                           p(eq1B),
@@ -142,6 +143,7 @@ ui <- fluidPage(
                                           plotOutput("scatter1B")
                                  ),
                                  tabPanel("Scatterplot matrix",
+                                          h3("Scatterplot matrix ('pairplot')"),
                                           plotOutput("pairplot"))
                          )
 
@@ -156,12 +158,14 @@ ui <- fluidPage(
                                                      "Horizontal (deg):",
                                                      min = -90,
                                                      max = 90,
-                                                     value = 40),
+                                                     value = 40,
+                                                     animate = TRUE),
                                          sliderInput("hauteur",
                                                      "vertical (deg):",
                                                      min = -90,
                                                      max = 90,
-                                                     value = 8),
+                                                     value = 8,
+                                                     animate = TRUE),
                                          checkboxInput("showplane",
                                                        "Show Regression plane",TRUE)
                                  ),
