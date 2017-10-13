@@ -6,10 +6,10 @@
 # Preliminary code =========================================
 
 library(shiny)
-library(plot3D)
+library(rockchalk)
 
 # ==========================================================
-# Auxiliary functions and code
+# Auxiliary functions
 #
 # get the equation (text) for a simple linear regression model
 
@@ -72,48 +72,10 @@ eq2 <- regeq(mod2)
 
 
 # ==========================================================
-# Prep code for 3D plane
+# General parameters
 
 point_color = "blue"
-
-
-# predict values on regular xy grid
-grid.lines = 30
-x.pred <- seq(min(vis$Adv), max(vis$Adv), length.out = grid.lines)
-y.pred <- seq(min(vis$Visits), max(vis$Visits), length.out = grid.lines)
-xy <- expand.grid( Adv = x.pred, Visits = y.pred)
-z.pred <- matrix(predict(mod2, newdata = xy),
-                 nrow = grid.lines, ncol = grid.lines)
-# fitted points for droplines to surface
-fitpoints <- predict(mod2)
-
-
-# Drawing function
-draw3Dscat <- function(theta= 30, phi = 0,
-                       showplane = TRUE,
-                       colpanel = "yellow3" ) {
-        # construction of the proper surf argument
-        if (showplane) {
-                surface <- list(x = x.pred, y = y.pred, z = z.pred,
-                                facets = NA, fit = fitpoints)
-        } else {
-                surface <- NULL
-        }
-        # Launch drawing
-        scatter3D(vis$Adv, vis$Visits,  vis$Sales,
-                  colvar = rep(c(0,1), nrow(vis)/2),
-                  # NAcol = "red",
-                  pch=16, cex = 2,
-                  col = point_color,
-                  bty = "u",
-                  col.panel = colpanel,
-                  col.grid = "darkblue",
-                  ticktype = "detailed",
-                  xlab = "Adv", ylab = "Visits", zlab = "Sales",
-                  surf = surface,
-                  theta = theta, phi = phi)
-}
-
+regcolor = "red"
 
 
 
@@ -190,13 +152,13 @@ ui <- fluidPage(
                                          h2("Perspective angles"),
                                          p("Rotate the perspective using the sliders"),
                                          sliderInput("azimut",
-                                                     "Horizontal (azimut) in deg.:",
+                                                     "Horizontal (deg):",
                                                      min = -90,
                                                      max = 90,
                                                      value = 40,
                                                      animate = animationOptions(interval = 200)),
-                                         sliderInput("colatitude",
-                                                     "vertical (colatitude) in deg.:",
+                                         sliderInput("hauteur",
+                                                     "vertical (deg):",
                                                      min = -90,
                                                      max = 90,
                                                      value = 8,
@@ -233,21 +195,48 @@ server <- function(input, output) {
    #---------------------------------------------------------
    output$Plot3d <- renderPlot({
            # display scatterplot3D using angles from sliders
-           # theta <- input$azimut
-           # phi <- input$hauteur
-           draw3Dscat(theta = input$azimut,
-                      phi = input$colatitude,
-                      showplane = input$showplane)
+           theta <- input$azimut
+           phi <- input$hauteur
+           # planecol <- adjustcolor(regcolor,
+                                    # alpha.f = ifelse(input$showplane, 1, 0))
+           planecol = regcolor
+           # draw the graph
+           plotPlane(mod2, # reg model
+                     # x1 and x2 names in model
+                     plotx1 = "Adv",
+                     plotx2 = "Visits",
+                     drawArrows = FALSE,
+                     # angles
+                     theta = theta,
+                     phi=phi,
+                     # floor
+                     # x1lim=c(70, 110),
+                     # x2lim = c(22, 33),
+                     # x1floor = 10, x2floor = 10,
+
+                     # line density in depicting the regression plane
+                     npp = 20,
+
+                     # points
+                     pch = 16, pcol = "blue",
+                     plwd = 3, # contour width
+                     pcex = 1.5, # point size
+                     llwd =  0.1,
+                     # color of the lines of the regression plane
+                     lcol = planecol,
+                     llty = 1, # type of the lines of the regression plane
+
+                     col="gray97", # color of the floor
+
+                     ticktype = "detailed")
+
    })
 
    # scatter1 #---------------------------------------------------------
    output$scatter1 <- renderPlot({
            with(vis,
                 {
-                        plot(x = Adv,
-                             y = Sales,
-                             pch = 16, col = "blue", cex = 2,
-                             asp = 4)
+                        plot(x = Adv, y = Sales, pch = 16, col = "blue", cex = 2)
                         abline(mod1)
                 }
            )
@@ -257,8 +246,7 @@ server <- function(input, output) {
    output$scatter1B <- renderPlot({
            with(vis,
                 {
-                        plot(x = Visits, y = Sales, pch = 16, col = "blue", cex = 2,
-                             asp = 1.5)
+                        plot(x = Visits, y = Sales, pch = 16, col = "blue", cex = 2)
                         abline(mod1B, col = "green")
                 }
            )
