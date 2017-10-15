@@ -1,0 +1,41 @@
+
+## Motivation
+
+Brian Caffo: Regression models (Week 3 - lecture "Model Selection part 1"): https://www.coursera.org/learn/regression-models/lecture/GOe0R/model-selection-part-i
+
+"What happens if we omit a variable that we should have included? The general result is that it results in bias. In other words, if you're interested in [...] a particular regressor and you've omitted something that's correlated with that regressor, then you're potentially going to get bias. [...] You're not going to get an accurate estimate of what you want to estimate, because of this other variable."
+
+This Shiny app proposes an exploration of a situation in which the omission of one important variable causes the sign of the coefficient of another variable to change, producing a biased and potentially misleading result.
+
+
+## The situation
+
+The Story an data are borrowed from the book "Analyse des données", by Jean de Lagarde.
+
+In this situation, a manager wishes to explain the variation in sales in several sect
+ors by the advertising expense, and , possibly, by the activity of the sales representatives of the company.
+
+In this situation, there is an obvious causal relationship between the two predictors (Sales representatives visits and Advertising expenses) and the response. Consequently, When a simple recression model is fit it is very odd to find a strong  negative correlation between the advertising expenses and the sales.
+One has to include the second variable to get credible model.
+
+
+## The app: Principles
+
+The app presents the situation, along with
+
+* simple-regression models with each predictor considered alone. for each model, a scatterplot with the corresponding regression line fitted is shown.
+* a scatterplot matrix, which could help to explain the reason of the surprising result.
+
+Then, on a separate tabb, a 3D scatterplot, with a regression plane fitted, is made accessible to the user. The user can change the viewing angles of this 3D representation, and discover how the correlation of the two predictors induces a misleading bias if one omits the sales representatives activity predictor from the model.
+
+
+# The app:
+
+The app can be used by clicking on [this linl](<..>)
+
+The source code for the app can be found  [here](<..>) 
+
+The source R Markdown for this presentation is accessible [here](<..>)
+
+ 
+
